@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ÖZNUR'BOT - Oyun Sayfası</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" />
+  <style>
+    html, body {
+      margin:0; padding:0;
+      font-family:'Comic Sans MS', sans-serif;
+      background:linear-gradient(135deg,#ffb6c1,#ff80ab);
+      color:#333;
+      height:100vh;
+      display:flex;
+      flex-direction:column;
+      overflow:hidden;
+    }
+    header {
+      position:fixed;
+      top:0; left:0; right:0;
+      height:50px;
+      padding:10px;
+      background:linear-gradient(135deg,#ffb6c1,#ff80ab);
+      display:flex;
+      align-items:flex-start;
+      justify-content:flex-end;
+      color:white;
+      z-index:100;
+      box-shadow:0 4px 6px rgba(0,0,0,0.3);
+    }
+    header h1 {
+      margin:0;
+      margin-right:20px;
+      font-size:26px;
+      line-height:1.2;
+      width:100%;
+      text-align:right;
+      position:relative;
+      cursor:pointer;
+    }
+    .subtitle {
+      position:absolute;
+      top:100%;
+      left:0;
+      width:100%;
+      text-align:right;
+      font-size:16px;
+      font-weight:bold;
+      letter-spacing:2px;
+      color:white;
+      transform:translateY(2px);
+    }
+    .menu-icon {
+      background:none;
+      border:none;
+      color:white;
+      font-size:32px;
+      cursor:pointer;
+    }
+    .box-below-header {
+      position: absolute;
+      top: 76px;
+      left: 22.5px;
+      width: 93px;
+      height: 53px;
+      background: #fff;
+      border-radius: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1px;
+      z-index: 89;
+    }
+    .box-below-header img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 15px;
+    }
+    .sidebar {
+      position:fixed;
+      top:60px;
+      left:-240px;
+      width:200px;
+      background:none;
+      backdrop-filter:blur(10px);
+      padding:10px;
+      border-radius:0 10px 10px 0;
+      transition:left .3s;
+      z-index:90;
+    }
+    .sidebar.open { left:0; }
+    .icon-button {
+      width:100%;
+      background:linear-gradient(30deg,#ff5574,#ffc6b1);
+      border:none;
+      color:white;
+      padding:8px;
+      margin-bottom:20px;
+      font-size:18px;
+      border-radius:20px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      cursor:pointer;
+    }
+    .icon-button:hover { background:#ff92a9; }
+    main {
+      margin-top:60px;
+      flex:1;
+      overflow:hidden;
+    }
+    iframe {
+      width:100%;
+      height:100%;
+      border:none;
+    }
+    .haklar {
+      position:fixed;
+      bottom:0;
+      width:100%;
+      text-align:center;
+      background:rgba(51,51,51,0.5);
+      backdrop-filter:blur(5px);
+      color:white;
+      font-size:14px;
+      padding:4px 0;
+      z-index:100;
+    }
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .spin { animation: spin 2s linear; }
+  </style>
+</head>
+<body>
+  <header>
+    <button id="menuButton" class="menu-icon">☰</button>
+    <h1 onclick="window.location.href='test1.html'">
+      ÖZNUR'BOT <span class="subtitle">OYUN SAYFASI</span>
+    </h1>
+  </header>
+
+  <div class="box-below-header">
+    <img src="audio/resim3.png" alt="Resim 3" />
+  </div>
+  
+  <div id="sidebarMenu" class="sidebar">
+    <button id="trashButton" class="icon-button">Ana Sayfa <span class="material-symbols-outlined">🏘️</span></button>
+    <button id="bookButton" class="icon-button">Kitap <span class="material-symbols-outlined">📚</span></button>
+    <button id="gameButton" class="icon-button">Oyunlar <span class="material-symbols-outlined">🎮</span></button>
+    <button id="youtubeButton" class="icon-button">YouTube <span class="material-symbols-outlined">🎥</span></button>
+    <button id="refreshButton" class="icon-button">Yenile <span class="material-symbols-outlined">♻️</span></button>
+  </div>
+
+  <main>
+    <iframe src="https://poki.com/tr" title="Oyunlar"></iframe>
+  </main>
+
+  <div class="haklar">Tüm haklar babası tarafından korunmaktadır</div>
+
+  <script>
+    const menuBtn = document.getElementById('menuButton');
+    const sidebar = document.getElementById('sidebarMenu');
+
+    menuBtn.onclick = () => sidebar.classList.toggle('open');
+
+    document.getElementById('youtubeButton').onclick = () => {
+      const icon = document.querySelector('#youtubeButton .material-symbols-outlined');
+      icon.classList.add('spin');
+      setTimeout(() => icon.classList.remove('spin'), 2000);
+      window.open('tube.html','_blank');
+    };
+
+    document.getElementById('bookButton').onclick = () => window.location.href = 'masal4.html';
+    document.getElementById('gameButton').onclick = () => window.location.href = 'game.html';
+    document.getElementById('trashButton').onclick = () => window.location.href = 'test1.html';
+    document.getElementById('refreshButton').onclick = () => location.reload();
+  document.querySelector('.box-below-header')
+    .addEventListener('click', () => window.history.back());
+</script>
+</body>
+</html>

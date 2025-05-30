@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ebeveyn Kontrolü</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: sans-serif;
+      background: #f0f2f5;
+      margin: 0;
+      padding: 10px;
+    }
+    .container {
+      max-width: 400px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      display: none;
+    }
+    h2 { text-align: center; color: #333; }
+    input[type="password"], button {
+      font-size: 16px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      padding: 14px;
+      margin: 10px 0;
+    }
+    button {
+      cursor: pointer;
+      background: #4CAF50;
+      color: white;
+      font-weight: bold;
+    }
+    button:hover { background: #45a049; }
+    .small-button {
+      background: #2196F3;
+      font-size: 14px;
+      padding: 10px;
+      margin: 5px;
+    }
+    .time-setting {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 10px 0;
+    }
+    .time-setting span {
+      font-size: 1.5em;
+      margin: 0 10px;
+      width: 60px;
+      text-align: center;
+    }
+    .time-setting button {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      font-size: 1.2em;
+    }
+    #timer {
+      font-size: 1.8em;
+      text-align: center;
+      color: #e91e63;
+      margin-bottom: 10px;
+    }
+    .btn-group {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+    .btn-group button {
+      flex: 1;
+      margin: 0 5px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Giriş -->
+<div class="container" id="loginPanel">
+  <h2>🔒 Ebeveyn Girişi</h2>
+  <input type="password" id="parentPass" placeholder="Parola girin" />
+  <button onclick="checkPassword()">Giriş Yap</button>
+  <button class="small-button" onclick="forgotPassword()">Şifremi Unuttum</button>
+</div>
+
+<!-- Ayar Paneli -->
+<div class="container" id="settingsPanel">
+  <h2>⏱ Süre Ayarla</h2>
+
+  <div class="time-setting">
+    <button onclick="adjustHour(-1)">-</button>
+    <span id="hourValue">0</span>
+    <button onclick="adjustHour(1)">+</button>
+  </div>
+  <p style="text-align:center; margin:0;">Saat</p>
+
+  <div class="time-setting">
+    <button onclick="adjustMinute(-1)">-</button>
+    <span id="minuteValue">0</span>
+    <button onclick="adjustMinute(1)">+</button>
+  </div>
+  <p style="text-align:center; margin:0;">Dakika</p>
+
+  <div class="btn-group">
+    <button onclick="setFullTime()">∞ Full Time</button>
+    <button onclick="startSession()">TAMAM</button>
+  </div>
+</div>
+
+<!-- Sayaç Paneli -->
+<div class="container" id="countdownPanel">
+  <h2>🧒 Süre Başladı</h2>
+  <div id="timer">--</div>
+  <div class="btn-group">
+    <button onclick="showPanel('settingsPanel')">Değiştir</button>
+    <button onclick="hidePanel()">Gizle</button>
+  </div>
+</div>
+
+<script>
+  const minuteOptions = [0, 1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
+  let hourValue = 0;
+  let minuteIndex = 0;
+  let isFullTime = false;
+  let interval;
+
+  function getStoredPassword() {
+    return localStorage.getItem('parentPassword') || '1234';
+  }
+
+  function showPanel(id) {
+    ['loginPanel','settingsPanel','countdownPanel']
+      .forEach(p => document.getElementById(p).style.display='none');
+    document.getElementById(id).style.display = 'block';
+  }
+
+  function hidePanel() {
+    document.getElementById('countdownPanel').style.display = 'none';
+  }
+
+  function checkPassword() {
+    const pass = document.getElementById('parentPass').value;
+    if (pass === getStoredPassword()) {
+      showPanel('settingsPanel');
+    } else alert('Hatalı parola!');
+  }
+
+  function forgotPassword() {
+    alert('Varsayılan şifre: 1234\nLütfen giriş yaptıktan sonra şifrenizi değiştirin.');
+  }
+
+  function adjustHour(delta) {
+    hourValue = Math.max(0, hourValue + delta);
+    document.getElementById('hourValue').innerText = hourValue;
+  }
+
+  function adjustMinute(delta) {
+    minuteIndex = (minuteIndex + delta + minuteOptions.length) % minuteOptions.length;
+    document.getElementById('minuteValue').innerText = minuteOptions[minuteIndex];
+  }
+
+  function setFullTime() {
+    isFullTime = true;
+    document.getElementById('timer').innerText = 'Sınırsız Kullanım';
+    showPanel('countdownPanel');
+  }
+
+  function startSession() {
+    isFullTime = false;
+    const durationMs = ((hourValue * 60) + minuteOptions[minuteIndex]) * 60 * 1000;
+    const endTime = Date.now() + durationMs;
+    showPanel('countdownPanel');
+    startCountdown(endTime);
+  }
+
+  function startCountdown(endTime) {
+    const el = document.getElementById('timer');
+    clearInterval(interval);
+    function update() {
+      const remain = Math.floor((endTime - Date.now()) / 1000);
+      if (remain <= 0) {
+        clearInterval(interval);
+        el.innerText = 'Süre Doldu';
+        return;
+      }
+      const m = Math.floor(remain / 60);
+      const s = remain % 60;
+      el.innerText = `${m} dk ${s.toString().padStart(2,'0')} sn`;
+    }
+    update();
+    interval = setInterval(update, 1000);
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    showPanel('loginPanel');
+  });
+</script>
+
+</body>
+</html>

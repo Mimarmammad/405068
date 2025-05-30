@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no" />
+  <title>Sesli Video Kontrol</title>
+  <style>
+    html, body {
+      margin: 0; padding: 0;
+      width: 100%; height: 100%;
+      background: url('audio/resim2.png') no-repeat center center/cover;
+      display: flex; justify-content: center; align-items: center;
+      overflow: hidden;
+      touch-action: none;
+      user-select: none;
+      position: relative;
+    }
+
+    video#main-video {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      z-index: 0;
+      display: none;
+    }
+
+    #ctrl-icon {
+      position: absolute;
+      bottom: 70px;
+      left: 50%; transform: translateX(-50%);
+      font-size: 50px;
+      color: white;
+      cursor: pointer;
+      z-index: 10;
+      background: none;
+    }
+
+    #ctrl-icon.animate {
+      animation: slidePause 4s ease-in-out 2;
+    }
+
+    @keyframes slidePause {
+      0% { transform: translateX(-50%) translateX(0); }
+      25% { transform: translateX(-50%) translateX(100px); }
+      50% { transform: translateX(-50%) translateX(0); }
+      75% { transform: translateX(-50%) translateX(100px); }
+      100% { transform: translateX(-50%) translateX(0); }
+    }
+
+    #atla-text {
+      position: absolute;
+      bottom: 90px;
+      left: 35%;
+      transform: translateX(-50%);
+      font-size: 16px;
+      color: white;
+      opacity: 0;
+      z-index: 10;
+    }
+
+    .atla-anim {
+      animation: atlaKay 4s ease-in-out 2;
+    }
+
+    @keyframes atlaKay {
+      0% { transform: translateX(-50%) translateX(0); opacity: 0; }
+      25% { transform: translateX(-50%) translateX(100px); opacity: 1; }
+      50% { transform: translateX(-50%) translateX(0); opacity: 0; }
+      75% { transform: translateX(-50%) translateX(100px); opacity: 1; }
+      100% { transform: translateX(-50%) translateX(0); opacity: 0; }
+    }
+
+    .fade-out-right {
+      animation: fadeOutRight 0.001s forwards;
+    }
+
+    @keyframes fadeOutRight {
+      0% { opacity: 1; transform: translateX(0); }
+      100% { opacity: 0; transform: translateX(100%); }
+    }
+
+    #close-icon {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      font-size: 50px;
+      color: white;
+      z-index: 20;
+      background: none;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <video id="main-video" preload="auto" playsinline>
+    <source src="audio/bookgate.mp4" type="video/mp4">
+  </video>
+
+  <div id="ctrl-icon">📚</div>
+  <div id="atla-text">ATLA</div>
+  <div id="close-icon">🪂</div>
+
+  <script>
+    const video = document.getElementById('main-video');
+    const icon = document.getElementById('ctrl-icon');
+    const atlaText = document.getElementById('atla-text');
+    const closeBtn = document.getElementById('close-icon');
+
+    let hasStarted = false;
+
+    function skipVideo() {
+      if (!hasStarted) return;
+      video.currentTime = video.duration;
+      video.pause();
+      video.dispatchEvent(new Event('ended'));
+    }
+
+    // Start video and animations on first click
+    icon.addEventListener('click', () => {
+      if (!hasStarted) {
+        hasStarted = true;
+        video.style.display = 'block';
+        video.volume = 0.5;
+        video.muted = false;
+        video.play();
+        document.body.style.background = 'black';
+        icon.textContent = '🏃‍➡️';
+        icon.classList.add('animate');
+        atlaText.classList.add('atla-anim');
+
+        // When ATLA animation starts/slides, skip
+        atlaText.addEventListener('animationiteration', () => {
+          skipVideo();
+        });
+      } else {
+        // Subsequent clicks always skip
+        skipVideo();
+      }
+    });
+
+    video.addEventListener('ended', () => {
+      document.body.classList.add('fade-out-right');
+      setTimeout(() => window.location.href = 'azmasal.html', 10);
+    });
+
+    // Touch swipe handlers
+    let startX, startY;
+    document.body.addEventListener('touchstart', e => {
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+    });
+
+    document.body.addEventListener('touchend', e => {
+      const dx = e.changedTouches[0].clientX - startX;
+      const dy = e.changedTouches[0].clientY - startY;
+
+      if (Math.abs(dx) > Math.abs(dy)) {
+        document.body.classList.add('fade-out-right');
+        setTimeout(() => {
+          const target = dx > 50 ? 'azmasal.html' : 'test1.html';
+          window.location.href = target;
+        }, 10);
+      }
+    });
+
+    closeBtn.addEventListener('click', () => {
+      window.close();
+    });
+  </script>
+</body>
+</html>

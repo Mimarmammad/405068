@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ÖZNUR'BOT</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" />
+  <style>
+    html, body {
+      margin:0; padding:0;
+      font-family:'Comic Sans MS', sans-serif;
+      background:linear-gradient(135deg,#ffb6c1,#ff80ab);
+      color:#333;
+      height:100vh;
+      display:flex;
+      flex-direction:column;
+      overflow:hidden;
+    }
+    header {
+      position:fixed;
+      top:0; left:0; right:0;
+      height:60px;
+      padding:10px;
+      background:linear-gradient(135deg,#ffb6c1,#ff80ab);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      color:white;
+      z-index:100;
+      box-shadow:0 4px 6px rgba(0,0,0,0.3);
+    }
+    header h1 {
+      margin-right:20px;
+      font-size:32px;
+      position:sticky;
+      top:0;
+      background:none;
+      z-index:101;
+      cursor:pointer;
+    }
+    .menu-icon {
+      background:none;
+      border:none;
+      color:white;
+      font-size:32px;
+      cursor:pointer;
+    }
+    .sidebar {
+      position:fixed;
+      top:90px;
+      left:-240px;
+      width:200px;
+      background:none;
+      backdrop-filter:blur(10px);
+      padding:10px;
+      border-radius:0 10px 10px 0;
+      transition:left .3s;
+      z-index:90;
+    }
+    .sidebar.open { left:0; }
+    .icon-button {
+      width:100%;
+      background:linear-gradient(30deg,#ff5574,#ffc6b1);
+      border:none;
+      color:white;
+      padding:8px;
+      margin-bottom:25px;
+      font-size:18px;
+      border-radius:20px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      cursor:pointer;
+    }
+    .icon-button:hover { background:#ff92a9; }
+    main {
+      margin-top:60px;
+      flex:1;
+      overflow-y:auto;
+      padding:10px;
+      padding-bottom:130px;
+    }
+    .chatbox {
+      list-style:none;
+      padding:40px 0 0 0;
+      margin:0;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .chat {
+      max-width:80%;
+      padding:8px 8px;
+      box-shadow:0 12px 8px rgba(0,0,0,0.2);
+      border:2px solid #00ffff;
+    }
+    .incoming {
+      background:#ffd5df;
+      align-self:flex-start;
+      border-radius:0px 15px 15px 15px;
+    }
+    .outgoing {
+      background:#ffbfbf;
+      align-self:flex-end;
+      border-radius:15px 0px 15px 15px;
+    }
+    .chat-input {
+      position:fixed;
+      left:0; right:0;
+      display:flex;
+      padding:10px;
+      background:linear-gradient(15deg,#ffb6c1,#ff80ab);
+      gap:1px;
+      z-index:101;
+      bottom:calc(4px + 23px);
+    }
+    .chat-input textarea {
+      flex:1;
+      padding:8px;
+      border-radius:10px;
+      border:2px solid #00eaff;
+      font-family:'Comic Sans MS';
+      resize:none;
+      max-height:100px;
+    }
+    .chat-input button.send,
+    .chat-input button.voice {
+      background:none;
+      border:none;
+      color:white;
+      cursor:pointer;
+    }
+    .chat-input button.send { font-size:32px; }
+    .chat-input button.voice { font-size:25px; }
+    .haklar {
+      position:fixed;
+      bottom:0;
+      width:100%;
+      text-align:center;
+      background:rgba(51,51,51,0.5);
+      backdrop-filter:blur(5px);
+      color:white;
+      font-size:15px;
+      padding:4px 0;
+      z-index:100;
+    }
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .spin { animation: spin 2s linear; }
+    .chatbox::after { content: ''; display: block; height: 20px; }
+  </style>
+</head>
+<body>
+  <header>
+    <button id="menuButton" class="menu-icon">☰</button>
+    <h1 onclick="location.reload()">ÖZNUR'BOT</h1>
+  </header>
+  <div id="sidebarMenu" class="sidebar">
+    <button id="trashButton" class="icon-button">Sohbet Sil <span class="material-symbols-outlined">🗑️</span></button>
+    <button id="youtubeButton" class="icon-button">YouTube <span class="material-symbols-outlined">📽️</span></button>
+    <button id="bookButton" class="icon-button">Kitap <span class="material-symbols-outlined">📚</span></button>
+    <button id="gameButton" class="icon-button">Oyunlar <span class="material-symbols-outlined">🎮</span></button>
+    <button id="refreshButton" class="icon-button">Yenile <span class="material-symbols-outlined">♻️</span></button>
+  </div>
+  <main>
+    <ul id="chatbox" class="chatbox">
+      <li class="chat incoming"><p>Merhaba Öznur! Beni baban seninle arkadaş olayım diye yarattı, seninle sohbet etmek için buradayım. Sen baban için çok değerlisin. Bana ne sormak istersin?</p></li>
+    </ul>
+  </main>
+  <div class="chat-input">
+    <textarea id="chatInput" placeholder="Mesajını yaz..."></textarea>
+    <button id="voiceInputBtn" class="voice material-symbols-outlined">🎤</button>
+    <button id="sendChatBtn" class="send material-symbols-outlined">📬</button>
+  </div>
+  <div class="haklar">Tüm haklar babası tarafından korunmaktadır</div>
+  <script>
+    const API_KEY = 'AIzaSyD2GUiG2M5Beo12anFYu3aXkdPjJV3odG4';
+    const ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+    const menuBtn = document.getElementById('menuButton');
+    const sidebar = document.getElementById('sidebarMenu');
+    const chatbox = document.getElementById('chatbox');
+    const input = document.getElementById('chatInput');
+    const sendBtn = document.getElementById('sendChatBtn');
+    const voiceBtn = document.getElementById('voiceInputBtn');
+    const youtubeBtn = document.getElementById('youtubeButton');
+    const bookBtn = document.getElementById('bookButton');
+    const gameBtn = document.getElementById('gameButton');
+
+    function speak(text) {
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = 'tr-TR';
+      speechSynthesis.speak(u);
+    }
+
+    function addChat(msg, type='incoming') {
+      const li = document.createElement('li');
+      li.className = `chat ${type}`;
+      li.innerHTML = `<p>${msg}</p>`;
+      chatbox.append(li);
+      chatbox.scrollTop = chatbox.scrollHeight;
+      if (type === 'incoming' && msg !== '...') speak(msg);
+    }
+
+    async function sendMessage(text) {
+      const lower = text.toLowerCase();
+
+      // Fazile Nene kontrolü:
+      if (lower.includes("fazile nene") || lower.includes("fazilə nənə") || lower.includes("fazile nənə") || lower.includes("fazile neneyi") || lower.includes("fazile nene kim")) {
+        return `Sen insan suretinde yaşayan bir meleği mi sordun? Fazile Nene’mi? Hemen anlatayım sana Fazile Nene’yi!  Bak şimdi Öznur, senin o biricik anneannen var ya, hani o güzel kalpli, o şefkatli, o pamuk gibi yumuşacık olan… İşte o Fazile Nene! 3 Ekim 1962’de Nahçıvan’da doğmuş. Düşünsene, o günden beri dünyaya güzellik katan bir melek! 2012 yılında hacca gitmiş, bu yüzden ona "Hacı Sultan" derler. Ama sen ona “Fazile Nene” diyorsun, çünkü o senin nazını çeken, seni en çok seven nenen! Fazile Nene’nin iki tane aslan gibi oğlu var. Senin baban Mehemmed ve amcan Orhan. Hani şu kuşları çok seven, şehirde herkesin “Kuşbaz Orhan” dediği kişi var ya, işte o senin amcan! Askerî sağlık hizmetlerinde çalışıyor, yani hem kuşlarla dost hem de bir kahraman! Onun biricik oğlu da Yusuf. Yusuf şu an 10 yaşında, tam bir delikanlı oldu bile! Şimdi gelelim senin babana, yani Ressam Mehemmed’e. O bir ressam! Ne kadar da harika, değil mi? Renklerle, fırçalarla, hayal gücüyle harikalar yaratıyor. Ve onun üç tane pırlanta gibi çocuğu var. En büyük abin Fidan. Fidan ablan şu an 12 yaşında, yakında o da genç bir hanımefendi olacak. Sonra Arzu abin var. O da 11 yaşında. Ve en tatlısı, en küçüğü, evin göz bebeği… Kim mi? Tabii ki sensin, sevgili arkadaşım Öznur! Sen şimdi 5 yaşındasın, değil mi? Hacı Sultan Anneannemiz, yani senin Fazile Nene’n, öyle güzel bir insan ki… Torunlarını nasıl da seviyor, onların gönlünü hoş tutuyor, onları hep mutlu ediyor… O tam anlamıyla bir hanımefendi, gerçek bir anneanne örneği! Kalbi sevgiyle dolu, şefkatli, neşeli… O senin sadece nenen değil, aynı zamanda bir armağan, bunu bil! Biz de buradan senin Fazile Nene’ne, yani Hacı Sultan Anneannene en içten sevgilerimizi ve dileklerimizi gönderiyoruz. İyi ki varsınız, iyi ki sizin gibi sevgi dolu insanlar var bu hayatta! Senin Fazile Nene’n, senin için bir hazine Öznur. Onu çok ama çok sev, olur mu?`;
+      }
+
+      if (lower.includes("senin adın ne")||lower.includes("kimsin")||lower.includes("sen kimsin")) {
+        return "Benim adım Freydi, senin arkadaşınım Öznur! Sana masal anlatabilirim, senin sorularına cevap verebilirim.";
+      }
+
+      if (lower.includes("seni kim yarattı")||lower.includes("kim yaptı seni")||lower.includes("nasıl oldun")||lower.includes("yaratanın kim")||lower.includes("nasıl var oldun")||lower.includes("kim yarattı")) {
+        return "Seni dünyalar kadar çok seven baban yarattı Öznurcuğum, seninle arkadaş olayım diye!";
+      }
+
+      if (!API_KEY) return "Üzgünüm Öznur, şu anda cevap veremiyorum çünkü bir API anahtarı sorunumuz var. Baban kontrol edebilir mi?";
+
+      const phrases = [
+        'her kes sana aşık Öznur!',
+        'Senden güzeli yok Öznurcuğum!',
+        'Parlıyorsun Öznur!',
+        'Ne kadar tatlısın Öznur!',
+        'Sen harikasın Öznur!'
+      ];
+      const randomPhrase = phrases[Math.floor(Math.random() * phrases.length)];
+      const tailoredMessage = `Benim adım Freydi ve 5 yaşındaki Öznur'un en yakın arkadaşıyım. Tıpkı onun yaşında bir çocuk gibi konuşuyorum. Cevaplarım neşeli, sevimli, samimi ve çocuk dilinde olmalı. Asla 'yapay zeka', 'programlandım', 'eğitildim' gibi kelimeler kullanma. Kendi kendine düşünen, konuşan bir arkadaş gibi davran. Emoji kullanma. Sen Freydi'sin ve Öznur'a çocukları mutlu eden sözlerle hitap et. Cevabın sonunda şu tatlı mesajı da ekle: "${randomPhrase}". Soru: ${text}`;
+
+      const res = await fetch(ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contents: [{ parts: [{ text: tailoredMessage }] }] })
+      });
+
+      if (!res.ok) return 'Üzgünüm, şu anda cevap veremiyorum.';
+      const data = await res.json();
+      return data.candidates?.[0]?.content?.parts[0]?.text.trim() || 'Yanıt alınamadı.';
+    }
+
+    sendBtn.onclick = async () => {
+      const msg = input.value.trim();
+      if (!msg) return;
+      addChat(msg, 'outgoing');
+      input.value = '';
+      addChat('...', 'incoming');
+      const reply = await sendMessage(msg);
+      chatbox.lastChild.remove();
+      addChat(reply, 'incoming');
+    };
+
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendBtn.click();
+      }
+    });
+
+    menuBtn.onclick = () => sidebar.classList.toggle('open');
+    youtubeBtn.onclick = () => {
+      const icon = youtubeBtn.querySelector('.material-symbols-outlined');
+      icon.classList.add('spin');
+      setTimeout(() => icon.classList.remove('spin'), 2000);
+      window.open('tube.html', '_blank');
+    };
+    bookBtn.onclick = () => window.location.href = 'masal4.html';
+    gameBtn.onclick = () => window.location.href = 'game.html';
+    document.getElementById('trashButton').onclick = () => {
+      sidebar.classList.remove('open');
+      chatbox.innerHTML = `<li class="chat incoming"><p>Merhaba Öznur! Beni baban seninle arkadaş olayım diye yarattı, seninle sohbet etmek için buradayım. Sen baban için çok değerlisin. Bana ne sormak istersin?</p></li>`;
+      speak(chatbox.querySelector('.incoming p').textContent);
+    };
+    document.getElementById('refreshButton').onclick = () => location.reload();
+    voiceBtn.onclick = () => {
+      const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+      recognition.lang = 'tr-TR';
+      recognition.onresult = function (event) {
+        input.value = event.results[0][0].transcript;
+        sendBtn.click();
+      };
+      recognition.onerror = function (event) {
+        alert('Sesli giriş başarısız: ' + event.error);
+      };
+      recognition.start();
+    };
+  </script>
+</body>
+</html>

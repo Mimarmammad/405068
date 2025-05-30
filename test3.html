@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gelişmiş Ayarlar (Ebeveyn Paneli)</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9fc;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 420px;
+      margin: auto;
+      background: #fff;
+      padding: 24px;
+      border-radius: 18px;
+      box-shadow: 0 0 16px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      color: #2a2a2a;
+    }
+
+    .section {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: bold;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 4px;
+      font-size: 16px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      font-size: 18px;
+      background: #0ca678;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #099168;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .message {
+      text-align: center;
+      color: red;
+      font-size: 14px;
+      display: none;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>🔐 Ebeveyn Girişi</h2>
+
+    <div id="login" class="section">
+      <label for="pin">PIN Kodu (4 hane):</label>
+      <input type="password" id="pin" maxlength="4">
+      <button onclick="checkPin()">Giriş Yap</button>
+      <div class="message" id="pinError">❌ Yanlış PIN. Lütfen tekrar deneyin.</div>
+    </div>
+
+    <div id="panel" class="hidden">
+      <h2>⚙️ Gelişmiş Ayarlar</h2>
+
+      <div class="section">
+        <label for="duration">📅 Günlük Süre Sınırı (dakika):</label>
+        <input type="number" id="duration" min="5" max="180" value="30">
+      </div>
+
+      <div class="section">
+        <label for="timeoutMessage">⏰ Süre Bitince Gösterilecek Mesaj:</label>
+        <input type="text" id="timeoutMessage" placeholder="Oynama süresi bitti, şimdi dinlenme zamanı!" />
+      </div>
+
+      <div class="section">
+        <label for="content">📺 İçerik Kategorisi:</label>
+        <select id="content">
+          <option value="all">Tüm İçerikler</option>
+          <option value="educational">Eğitici</option>
+          <option value="story">Hikayeler</option>
+        </select>
+      </div>
+
+      <div class="section">
+        <label for="language">🌍 Dil:</label>
+        <select id="language">
+          <option value="tr">Türkçe</option>
+          <option value="en">İngilizce</option>
+        </select>
+      </div>
+
+      <div class="section">
+        <label for="sound">🔊 Sesli Yanıtlar:</label>
+        <select id="sound">
+          <option value="on">Açık</option>
+          <option value="off">Kapalı</option>
+        </select>
+      </div>
+
+      <div class="section">
+        <label for="theme">🎨 Tema:</label>
+        <select id="theme">
+          <option value="light">Açık Tema</option>
+          <option value="dark">Koyu Tema</option>
+        </select>
+      </div>
+
+      <button onclick="saveSettings()">💾 Ayarları Kaydet</button>
+      <button onclick="resetSettings()" style="background:#d9534f">🔁 Sıfırla</button>
+    </div>
+  </div>
+
+  <script>
+    const correctPin = "1234"; // Gerçek projede güvenli saklama gerekir
+
+    function checkPin() {
+      const pin = document.getElementById("pin").value;
+      const errorMsg = document.getElementById("pinError");
+      if (pin === correctPin) {
+        document.getElementById("login").style.display = "none";
+        document.getElementById("panel").style.display = "block";
+        loadSettings();
+      } else {
+        errorMsg.style.display = "block";
+      }
+    }
+
+    function saveSettings() {
+      const settings = {
+        duration: document.getElementById("duration").value,
+        message: document.getElementById("timeoutMessage").value,
+        content: document.getElementById("content").value,
+        language: document.getElementById("language").value,
+        sound: document.getElementById("sound").value,
+        theme: document.getElementById("theme").value
+      };
+      localStorage.setItem("parentSettings", JSON.stringify(settings));
+      alert("✅ Ayarlar kaydedildi!");
+    }
+
+    function loadSettings() {
+      const data = localStorage.getItem("parentSettings");
+      if (!data) return;
+      const s = JSON.parse(data);
+      document.getElementById("duration").value = s.duration;
+      document.getElementById("timeoutMessage").value = s.message;
+      document.getElementById("content").value = s.content;
+      document.getElementById("language").value = s.language;
+      document.getElementById("sound").value = s.sound;
+      document.getElementById("theme").value = s.theme;
+    }
+
+    function resetSettings() {
+      localStorage.removeItem("parentSettings");
+      alert("⚠️ Ayarlar sıfırlandı!");
+      location.reload();
+    }
+  </script>
+</body>
+</html>
